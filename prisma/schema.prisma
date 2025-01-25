@@ -27,3 +27,14 @@ model Course {
   created_at     DateTime @default(now())
   updated_at     DateTime @updatedAt
 }
+
+model User {
+  id         String   @id @default(uuid())
+  full_name  String
+  username   String   @unique
+  email      String   @unique
+  password   String
+  role       String   @default("USER")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}

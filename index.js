@@ -1,11 +1,8 @@
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
 const courseRoutes = require('./src/routes/course');
-
-// Load environment variables
-dotenv.config();
+const port = require('./src/config/config');
 
 // Create an express app
 const app = express();
@@ -20,7 +17,6 @@ app.use(bodyParser.json());
 app.use('/course', courseRoutes);
 
 // Start the server
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
