@@ -6,10 +6,19 @@ const {
   generateVerificationToken,
 } = require('../utils/generateVerificationToken');
 const { sendVerificationEmail } = require('../utils/mail');
+const { validationResult } = require('express-validator');
 
 // Register a new user
 const registerUser = async (req, res) => {
   try {
+    // checking error validation
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        errors: errors.array(),
+      });
+    }
+
     const { fullName, username, email, password } = req.body;
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
