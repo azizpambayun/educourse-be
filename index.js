@@ -2,7 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const courseRoutes = require('./src/routes/course');
-const port = require('./src/config/config');
+const userRoutes = require('./src/routes/user');
+const { port } = require('./src/config/config');
 
 // Create an express app
 const app = express();
@@ -15,6 +16,7 @@ app.use(bodyParser.json());
 
 // Routes
 app.use('/course', courseRoutes);
+app.use('/', userRoutes);
 
 // Start the server
 app.listen(port, () => {
