@@ -84,11 +84,13 @@ const getAllCourses = async (req, res) => {
 
     // Searching
     if (search) {
-      where.OR = [
-        { title: { contains: search } },
-        { description: { contains: search } },
-        { language: { contains: search } },
-      ];
+      const searchTerms = search.split(' ');
+      where.OR = searchTerms.map(term => ({
+        OR: [
+          { title: { contains: term } },
+          { description: { contains: term } },
+        ],
+      }));
     }
 
     // Sorting
