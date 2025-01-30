@@ -85,9 +85,9 @@ const getAllCourses = async (req, res) => {
     // Searching
     if (search) {
       where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-        { language: { contains: search, mode: 'insensitive' } },
+        { title: { contains: search } },
+        { description: { contains: search } },
+        { language: { contains: search } },
       ];
     }
 
