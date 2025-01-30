@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const courseRoutes = require('./src/routes/course');
 const userRoutes = require('./src/routes/user');
 const { port } = require('./src/config/config');
+const path = require('path');
 
 // Create an express app
 const app = express();
@@ -13,6 +14,9 @@ app.use(cors());
 
 // Middleware to parse request bodies
 app.use(bodyParser.json());
+
+// Serve static files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/course', courseRoutes);

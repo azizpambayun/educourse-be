@@ -60,6 +60,7 @@ const registerUser = async (req, res) => {
   }
 };
 
+// Login user
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -104,6 +105,7 @@ const loginUser = async (req, res) => {
   }
 };
 
+// Verify user email
 const verifyEmail = async (req, res) => {
   try {
     const { token } = req.query;

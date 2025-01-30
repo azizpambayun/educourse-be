@@ -20,6 +20,7 @@ const authMiddleware = (req, res, next) => {
     });
   }
 
+  // check if the token is valid
   try {
     const decoded = jwt.verify(token, jwtSecret);
     req.userId = decoded.userId;

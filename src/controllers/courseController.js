@@ -47,13 +47,83 @@ const createCourse = async (req, res) => {
   }
 };
 
-// Get all courses
+// Get all courses and query parameters (search, sort, filter, pagination)
 const getAllCourses = async (req, res) => {
   try {
-    const courses = await prisma.course.findMany();
-    res.status(200).json(courses);
+    const { search, sort, page = 1, limit = 10, ...filters } = req.query;
+    const where = {};
+    const validFields = [
+      'id',
+      'title',
+      'description',
+      'price',
+      'discount_price',
+      'average_rating',
+      'review_count',
+      'language',
+      'total_duration',
+      'thumbnail_url',
+      'created_at',
+      'updated_at',
+    ];
+
+    // Filtering
+    for (const [key, value] of Object.entries(filters)) {
+      if (key.includes('_')) {
+        const [field, operator] = key.split('_');
+        if (validFields.includes(field)) {
+          where[field] = {
+            ...where[field],
+            [operator]: parseValue(field, value),
+          };
+        }
+      } else if (validFields.includes(key)) {
+        where[key] = parseValue(key, value);
+      }
+    }
+
+    // Searching
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { language: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    // Sorting
+    const orderBy = [];
+    if (sort) {
+      sort.split(',').forEach(sortParam => {
+        const [field, direction] = sortParam.split(':');
+        if (validFields.includes(field)) {
+          orderBy.push({
+            [field]: direction?.toLowerCase() === 'desc' ? 'desc' : 'asc',
+          });
+        }
+      });
+    }
+    if (orderBy.length === 0) {
+      orderBy.push({ created_at: 'asc' });
+    }
+
+    // Pagination
+    const skip = (page - 1) * limit;
+    const courses = await prisma.course.findMany({
+      where,
+      orderBy,
+      skip,
+      take: parseInt(limit, 10),
+    });
+    const totalCourses = await prisma.course.count({ where });
+    res.status(200).json({
+      totalCourses,
+      totalPages: Math.ceil(totalCourses / limit),
+      currentPage: parseInt(page, 10),
+      courses,
+    });
   } catch (error) {
-    console.error('Error fetching courses');
+    console.error('Error fetching courses', error);
     res.status(500).json({
       error: 'Failed to fetch courses',
     });
@@ -140,6 +210,30 @@ const deleteCourse = async (req, res) => {
     });
   }
 };
+
+// Helper function to parse values based on field type
+function parseValue(field, value) {
+  const numericFields = {
+    id: 'int',
+    price: 'float',
+    discount_price: 'float',
+    average_rating: 'float',
+    review_count: 'int',
+    total_duration: 'int',
+  };
+
+  const dateFields = ['created_at', 'updated_at'];
+
+  if (numericFields[field]) {
+    return numericFields[field] === 'int'
+      ? parseInt(value, 10)
+      : parseFloat(value);
+  }
+  if (dateFields.includes(field)) {
+    return new Date(value);
+  }
+  return value;
+}
 
 module.exports = {
   createCourse,
