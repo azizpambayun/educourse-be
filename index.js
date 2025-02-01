@@ -5,9 +5,13 @@ const courseRoutes = require('./src/routes/course');
 const userRoutes = require('./src/routes/user');
 const { port } = require('./src/config/config');
 const path = require('path');
+const loggingMiddleware = require('./src/middleware/loggingMiddleware');
 
 // Create an express app
 const app = express();
+
+// Middleware for logging requests and responses
+app.use(loggingMiddleware);
 
 // Middleware to enable CORS
 app.use(cors());
